@@ -6,7 +6,7 @@ setup(
     description='Continuous AWS Perimeter Monitoring',
     author='Peter Adkins',
     author_email='peter.adkins@kernelpicnic.net',
-    url='https://www.github.com/darkarnium/bagger',
+    url='https://www.github.com/darkarnium/perimeterator',
     packages=find_packages('src'),
     license='MIT',
     classifiers=[
@@ -14,11 +14,9 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     package_dir={
-        'bagger': 'src/bagger',
+        'perimeterator': 'src/perimeterator',
     },
-    scripts=[
-        'src/baggercli'
-    ],
+    scripts=[],
     setup_requires=[
         'pytest-runner',
     ],
@@ -27,9 +25,6 @@ setup(
         'pytest-cov',
     ],
     install_requires=[
-        'click==6.6',
-        'PyYAML==3.12',
-        'cerberus==1.2',
-        'adns @ git+https://github.com/trolldbois/python3-adns.git@master',
+        'boto3==1.9.108'
     ]
 )
