@@ -44,8 +44,8 @@ class Enumerator(object):
                 for nic in instance["NetworkInterfaces"]:
                     # A NIC can have multiple IPs.
                     for ip in nic["PrivateIpAddresses"]:
-                        # An IP may not have an association if it is only
-                        # an RFC1918 address.
+                        # An IP may not have an association if it is only an
+                        # RFC1918 address.
                         if "Association" in ip and "PublicIp" in ip["Association"]:
                             self.logger.info(
                                 "Instance %s has IP %s bound, recording",

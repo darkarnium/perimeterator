@@ -16,8 +16,8 @@ REGIONS = [
 
 MODULES = [
     'ec2',
-    # 'eip',
-    # 'xlb',
+    'elb',
+    'elbv2',
 ]
 
 
