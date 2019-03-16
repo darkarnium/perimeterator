@@ -1,5 +1,6 @@
 ''' Perimeterator - Internal helpers for Enumerator operations. '''
 
+import boto3
 import socket
 
 
@@ -16,3 +17,9 @@ def dns_lookup(fqdn):
         pass
 
     return addresses
+
+
+def aws_account_id():
+    ''' Attempts to get the account id for the current AWS account. '''
+    client = boto3.client('sts')
+    return client.get_caller_identity()["Account"]

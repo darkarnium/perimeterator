@@ -20,6 +20,9 @@ MODULES = [
     'elbv2',
 ]
 
+SQS_REGION = 'us-west-2'
+SQS_QUEUE = 'https://sqs.us-west-2.amazonaws.com/639646276157/perimiterator-scanner'
+
 
 def lambda_handler(event, context):
     ''' An AWS Lambda wrapper for the Perimeterator poller. '''
@@ -27,31 +30,46 @@ def lambda_handler(event, context):
         level=logging.INFO,
         format='%(asctime)s - %(process)d - [%(levelname)s] %(message)s'
     )
-    log = logging.getLogger(__name__)
+    logger = logging.getLogger(__name__)
 
-    # Process regions one at a time, enumerating all configured resources
-    # in the given region. Currently, it's not possible to only enumerate
-    # different resources types by region. Maybe later! :)
+    # Get the account id for the current AWS account.
+    account = perimeterator.enumerator.helper.aws_account_id()
+    logger.info("AWS account id %s", account)
+
+    # Setup the SQS dispatcher for submission of addresses to scanners.
+    queue = perimeterator.dispatcher.sqs.Dispatcher(
+        region=SQS_REGION,
+        queue=SQS_QUEUE,
+    )
+
+    # Process regions one at a time, enumerating addresses for all configured
+    # resources in the given region. Currently, it's not possible to only
+    # enumerate different resources types by region. Maybe later! :)
     for region in REGIONS:
-        log.info("Attempting to enumerate resources in %s", region)
+        logger.info("Attempting to enumerate resources in %s", region)
 
         for module in MODULES:
-            log.info("Attempting to enumerate %s resources", module)
+            logger.info("Attempting to enumerate %s resources", module)
             try:
                 # Ensure a handler exists for this type of resource.
                 hndl = getattr(perimeterator.enumerator, module).Enumerator(
                     region=region,
                 )
             except AttributeError as err:
-                log.error(
+                logger.error(
                     "Handler for %s resources not found, skipping: %s",
                     module,
                     err,
                 )
                 continue
 
-            # Get all appropriate resources.
-            resources = hndl.get()
+            # Get all addresses and dispatch to SQS for processing.
+            logger.info(
+                "Submitting %s resources in %s for processing",
+                module,
+                region,
+            )
+            queue.dispatch(region, account, hndl.get())
 
 
 if __name__ == '__main__':
