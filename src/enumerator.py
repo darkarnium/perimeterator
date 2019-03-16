@@ -21,11 +21,16 @@ MODULES = [
 
 def lambda_handler(event, context):
     ''' An AWS Lambda wrapper for the Perimeterator enumerator. '''
+    # Strip off any existing handlers that may have been installed by AWS.
+    logger = logging.getLogger()
+    for handler in logger.handlers:
+        logger.removeHandler(handler)
+
+    # Reconfigure the root logger the way we want it.
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(process)d - [%(levelname)s] %(message)s'
     )
-    logger = logging.getLogger()
 
     # Get the account id for the current AWS account.
     account = perimeterator.enumerator.helper.aws_account_id()
