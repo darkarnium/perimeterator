@@ -3,7 +3,7 @@
 import logging
 import boto3
 
-from perimeterator.enumerator.helper import ec2_arn
+from perimeterator.helper import ec2_arn
 
 
 class Enumerator(object):

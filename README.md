@@ -1,6 +1,6 @@
-## Perimeterator
+![Perimeterator](./docs/images/Perimeterator.png?raw=true)
 
-'Continuous' AWS perimeter monitoring - Periodically scan internet facing AWS
+'Continuous' AWS perimeter monitoring: Periodically scan internet facing AWS
 resources to detect misconfigured services. 
 
 ### Overview
@@ -12,14 +12,9 @@ misconfigured AWS resources.
 
 The results from this enumeration process are pushed into a work queue for
 scanning by external scanner 'workers' in order to locate open network
-services.
-
-Scanner 'workers' can be deployed anywhere, and are intended to be deployed
-into non-trusted networks in order to provide a representation of access to
-services from the "general internet".
-
-All communication between Perimeterator components occurs asynchronously
-through the use of AWS SQS queues.
+services. Scanner 'workers' can be deployed anywhere, and are intended to be
+deployed into non-trusted networks in order to provide a representation of
+access to services from the "general internet".
 
 Currently, the following AWS resource types are supported:
 
@@ -27,6 +22,9 @@ Currently, the following AWS resource types are supported:
 * ELB
 * ELBv2
 * RDS
+
+All communication between Perimeterator components occurs asynchronously
+through the use of AWS SQS queues.
 
 ### Deployment
 

@@ -3,8 +3,8 @@
 import logging
 import boto3
 
-from perimeterator.enumerator.helper import elb_arn
-from perimeterator.enumerator.helper import dns_lookup
+from perimeterator.helper import elb_arn
+from perimeterator.helper import dns_lookup
 
 
 class Enumerator(object):

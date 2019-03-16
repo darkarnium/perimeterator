@@ -4,7 +4,7 @@ import logging
 import boto3
 import json
 
-from perimeterator.dispatcher.helper import sqs_arn_to_url
+from perimeterator.helper import sqs_arn_to_url
 
 
 class Dispatcher(object):

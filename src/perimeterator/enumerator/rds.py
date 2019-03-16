@@ -3,7 +3,7 @@
 import logging
 import boto3
 
-from perimeterator.enumerator.helper import dns_lookup
+from perimeterator.helper import dns_lookup
 
 
 class Enumerator(object):
