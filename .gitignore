@@ -50,3 +50,10 @@ ENV/
 
 # OS X Bullshit.
 .DS_Store
+
+# Packaged code.
+*.zip
+
+# Terraform files.
+*.tfstate
+.terraform/
