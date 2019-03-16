@@ -1,19 +1,16 @@
-''' Perimeterator Poller.
+''' Perimeterator Enumerator.
 
 This wrapper is intended to allow for simplified AWS based deployment of the
-Perimeterator poller. This allows for a cost effective method of execution,
-as the Perimeterator poller component only needs to execute on a defined
-schedule in order to detect changes.
+Perimeterator enumerator. This allows for a cost effective method of
+execution, as the Perimeterator poller component only needs to execute on a
+defined schedule in order to detect changes.
 '''
 
+import os
 import logging
 import perimeterator
 
-# Move this into configuration once well tested.
-REGIONS = [
-    'us-west-2',
-]
-
+# TODO: This should likely be configurable.
 MODULES = [
     'rds',
     'ec2',
@@ -21,12 +18,9 @@ MODULES = [
     'elbv2',
 ]
 
-SQS_REGION = 'us-west-2'
-SQS_QUEUE = 'https://sqs.us-west-2.amazonaws.com/639646276157/perimiterator-scanner'
-
 
 def lambda_handler(event, context):
-    ''' An AWS Lambda wrapper for the Perimeterator poller. '''
+    ''' An AWS Lambda wrapper for the Perimeterator enumerator. '''
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(process)d - [%(levelname)s] %(message)s'
@@ -35,18 +29,32 @@ def lambda_handler(event, context):
 
     # Get the account id for the current AWS account.
     account = perimeterator.enumerator.helper.aws_account_id()
-    logger.info("AWS account id %s", account)
+    logger.info("Running in AWS account %s", account)
+
+    # Get configurable options from environment variables.
+    regions = os.getenv("ENUMERATOR_REGIONS", "us-west-2").split(",")
+    sqs_region = os.getenv("ENUMERATOR_SQS_REGION", "us-west-2")
+    sqs_queue  = os.getenv("ENUMERATOR_SQS_QUEUE", None)
+    logger.info(
+        "Configured regions for resource enumeration are %s",
+        ", ".join(regions),
+    )
+    logger.info(
+        "Configured results SQS queue is %s in %s",
+        sqs_queue,
+        sqs_region,
+    )
 
     # Setup the SQS dispatcher for submission of addresses to scanners.
     queue = perimeterator.dispatcher.sqs.Dispatcher(
-        region=SQS_REGION,
-        queue=SQS_QUEUE,
+        region=sqs_region,
+        queue=sqs_queue,
     )
 
     # Process regions one at a time, enumerating addresses for all configured
     # resources in the given region. Currently, it's not possible to only
     # enumerate different resources types by region. Maybe later! :)
-    for region in REGIONS:
+    for region in regions:
         logger.info("Attempting to enumerate resources in %s", region)
 
         for module in MODULES:
