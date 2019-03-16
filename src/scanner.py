@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 ''' Perimeterator Scanner.
 
 Provides scanning of resources identified by the Perimeterator Enumerator.

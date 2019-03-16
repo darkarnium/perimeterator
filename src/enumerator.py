@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 ''' Perimeterator Enumerator.
 
 This wrapper is intended to allow for simplified AWS based deployment of the
