@@ -30,7 +30,7 @@ resource "aws_sqs_queue" "scan" {
   redrive_policy            = <<EOF
 {
   "deadLetterTargetArn": "${aws_sqs_queue.deadletter.arn}",
-  "maxReceiveCount": 4,   
+  "maxReceiveCount": 4
 }
 EOF
 }
@@ -56,8 +56,8 @@ EOF
 }
 
 // Create a CloudWatch log group for Lambda logs.
-resource "aws_cloudwatch_log_group" "perimiterator" {
-  name              = "/aws/lambda/perimiterator"
+resource "aws_cloudwatch_log_group" "enumerator" {
+  name              = "/aws/lambda/perimiterator-enumerator"
   retention_in_days = 14
 }
 
@@ -74,7 +74,7 @@ resource "aws_iam_policy" "log" {
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
-      "Resource": "${aws_cloudwatch_log_group.perimiterator.arn}",
+      "Resource": "${aws_cloudwatch_log_group.enumerator.arn}",
       "Effect": "Allow"
     }
   ]
@@ -94,7 +94,7 @@ resource "aws_iam_policy" "enqueue" {
     {
       "Effect": "Allow",
       "Action": [
-        "sqs:SendMessage",
+        "sqs:SendMessage"
       ],
       "Resource": "${aws_sqs_queue.scan.arn}"
     }

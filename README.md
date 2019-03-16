@@ -5,7 +5,7 @@ resources to detect misconfigured services.
 
 ### Overview
 
-Perimiterator is a small project intended to allow for continuous auditing
+Perimeterator is a small project intended to allow for continuous auditing
 of internet facing AWS services. It can be quickly deployed into AWS and will
 periodically enumerate internet-facing IP addresses for a number of commonly
 misconfigured AWS resources.
@@ -27,7 +27,7 @@ Currently, the following AWS resource types are supported:
 
 ### Deployment
 
-Perimiterator requires a few components in order to function. However, in
+Perimeterator requires a few components in order to function. However, in
 order to make getting started as easy as possible, some Terraform configs
 have been provided inside of the `terraform/` directory.
 
@@ -35,7 +35,7 @@ To get started, please see the `terraform/README.md` file.
 
 ### Components
 
-Perimiterator has a number of components, due to its distributed nature. A
+Perimeterator has a number of components, due to its distributed nature. A
 brief overview of each of these components has been provided below.
 
 #### Enumerator (`enumerator.py`)

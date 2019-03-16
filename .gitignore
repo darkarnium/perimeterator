@@ -55,5 +55,5 @@ ENV/
 *.zip
 
 # Terraform files.
-*.tfstate
+*.tfstate*
 .terraform/

@@ -3,6 +3,7 @@
 import boto3
 import socket
 
+
 def elb_arn(region, name):
     ''' Constructs an ARN for an ELB in the given region. '''
     return 'arn:aws:elasticloadbalancing:{0}:{1}:loadbalancer/{2}'.format(
@@ -10,6 +11,7 @@ def elb_arn(region, name):
         aws_account_id(),
         name,
     )
+
 
 def ec2_arn(region, identifier, resource='instance'):
     ''' Constructs an ARN for an EC2 resource in the given region. '''
@@ -19,6 +21,7 @@ def ec2_arn(region, identifier, resource='instance'):
         resource,
         identifier,
     )
+
 
 def dns_lookup(fqdn):
     ''' Lookups up the given FQDN returning an array of IPs. '''

@@ -25,7 +25,7 @@ def lambda_handler(event, context):
         level=logging.INFO,
         format='%(asctime)s - %(process)d - [%(levelname)s] %(message)s'
     )
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger()
 
     # Get the account id for the current AWS account.
     account = perimeterator.enumerator.helper.aws_account_id()

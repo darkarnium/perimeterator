@@ -3,13 +3,12 @@ variable deployment_region {
     default = "us-west-2"
 }
 
-// A list of regions the Perimiterator Enumerator will scan.
+// A list of regions the Perimeterator Enumerator will scan.
 variable enumerator_regions {
     type    = "list"
     default = [
         "ap-northeast-1",
         "ap-northeast-2",
-        "ap-northeast-3",
         "ap-south-1",
         "ap-southeast-1",
         "ap-southeast-2",

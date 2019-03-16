@@ -4,12 +4,14 @@ import logging
 import boto3
 import json
 
+from perimeterator.dispatcher.helper import sqs_arn_to_url
+
 
 class Dispatcher(object):
     ''' Perimeterator - SQS dispatcher for enumerated addresses. '''
 
     def __init__(self, region, queue):
-        self.queue = queue
+        self.queue = sqs_arn_to_url(queue)
         self.logger = logging.getLogger(__name__)
         self.region = region
         self.client = boto3.client("sqs", region_name=region)
