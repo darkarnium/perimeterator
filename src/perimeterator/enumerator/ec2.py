@@ -3,17 +3,22 @@
 import logging
 import boto3
 
+from perimeterator.enumerator.helper import ec2_arn
+
 
 class Enumerator(object):
     ''' Perimeterator - Enumerator for AWS EC2 Instances (Public IPs). '''
+    # Required for Boto and reporting.
+    SERVICE = 'ec2'
 
     def __init__(self, region):
         self.logger = logging.getLogger(__name__)
-        self.client = boto3.client('ec2', region_name=region)
+        self.region = region
+        self.client = boto3.client(self.SERVICE, region_name=region)
 
     def get(self):
         ''' Attempt to get all Public IPs from EC2 instances. '''
-        addresses = []
+        resources = []
 
         # Ensure that all IPs attached to running or pending instances, are
         # accounted for.
@@ -41,18 +46,22 @@ class Enumerator(object):
                     "Inspecting instance %s", instance["InstanceId"],
                 )
                 # An instance can have multiple NICs.
+                addresses = []
                 for nic in instance["NetworkInterfaces"]:
                     # A NIC can have multiple IPs.
                     for ip in nic["PrivateIpAddresses"]:
                         # An IP may not have an association if it is only an
                         # RFC1918 address.
                         if "Association" in ip and "PublicIp" in ip["Association"]:
-                            self.logger.info(
-                                "Instance %s has IP %s bound, recording",
-                                instance["InstanceId"],
-                                ip["Association"]["PublicIp"],
-                            )
                             addresses.append(ip["Association"]["PublicIp"])
 
-        self.logger.info("Got %s IPs", len(addresses))
-        return addresses
+                # We need to construct the EC2 instance ARN ourselves, as
+                # this isn't provided as part of the describe output.
+                resources.append({
+                    "service": self.SERVICE,
+                    "identifier": ec2_arn(self.region, instance["InstanceId"]),
+                    "addresses": addresses,
+                })
+        
+        self.logger.info("Got IPs for %s resources", len(resources))
+        return resources

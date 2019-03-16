@@ -3,6 +3,22 @@
 import boto3
 import socket
 
+def elb_arn(region, name):
+    ''' Constructs an ARN for an ELB in the given region. '''
+    return 'arn:aws:elasticloadbalancing:{0}:{1}:loadbalancer/{2}'.format(
+        region,
+        aws_account_id(),
+        name,
+    )
+
+def ec2_arn(region, identifier, resource='instance'):
+    ''' Constructs an ARN for an EC2 resource in the given region. '''
+    return 'arn:aws:ec2:{0}:{1}:{2}/{3}'.format(
+        region,
+        aws_account_id(),
+        resource,
+        identifier,
+    )
 
 def dns_lookup(fqdn):
     ''' Lookups up the given FQDN returning an array of IPs. '''
@@ -16,7 +32,8 @@ def dns_lookup(fqdn):
         # This is super janky, but hey.
         pass
 
-    return addresses
+    # Convert to a set and back again to deduplicate.
+    return list(set(addresses))
 
 
 def aws_account_id():

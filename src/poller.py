@@ -15,6 +15,7 @@ REGIONS = [
 ]
 
 MODULES = [
+    'rds',
     'ec2',
     'elb',
     'elbv2',

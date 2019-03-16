@@ -11,28 +11,31 @@ class Dispatcher(object):
     def __init__(self, region, queue):
         self.queue = queue
         self.logger = logging.getLogger(__name__)
+        self.region = region
         self.client = boto3.client("sqs", region_name=region)
 
-    def dispatch(self, region, account, addresses):
+    def dispatch(self, region, account, resources):
         ''' Iterates over address array and enqueues for processing. '''
         self.logger.info(
-            "Attempting to enqueue %d addresses", len(addresses),
+            "Attempting to enqueue %d resources", len(resources),
         )
-        for address in addresses:
+        for resource in resources:
             response = self.client.send_message(
                 QueueUrl=self.queue,
                 MessageAttributes={
-                    "Region": {
+                    "Identifier": {
                         "DataType": "String",
-                        "StringValue": region,
+                        "StringValue": resource["identifier"],
                     },
-                    "Account": {
-                        "DataType": "Number",
-                        "StringValue": account,
+                    "Service": {
+                        "DataType": "String",
+                        "StringValue": resource["service"],
                     }
                 },
-                MessageBody=address
+                MessageBody=json.dumps(resource["addresses"])
             )
             self.logger.info(
-                "%s enqueued as %s", address, response["MessageId"],
+                "Enqueued IPs for resource %s as %s",
+                resource["identifier"],
+                response["MessageId"],
             )
