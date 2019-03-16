@@ -22,15 +22,71 @@ resource "aws_sqs_queue" "deadletter" {
   max_message_size          = 1024
 }
 
-// Create a Perimiterator scan queue.
-resource "aws_sqs_queue" "scan" {
-  name                      = "perimiterator-scan"
+// Create a Perimiterator enumerator queue.
+resource "aws_sqs_queue" "enumerator" {
+  name                      = "perimiterator-enumerator"
   message_retention_seconds = 3600
   max_message_size          = 1024
   redrive_policy            = <<EOF
 {
   "deadLetterTargetArn": "${aws_sqs_queue.deadletter.arn}",
   "maxReceiveCount": 4
+}
+EOF
+}
+
+// Create a Perimiterator scanner queue.
+resource "aws_sqs_queue" "scanner" {
+  name                      = "perimiterator-scanner"
+  message_retention_seconds = 3600
+  max_message_size          = 102400
+  redrive_policy            = <<EOF
+{
+  "deadLetterTargetArn": "${aws_sqs_queue.deadletter.arn}",
+  "maxReceiveCount": 4
+}
+EOF
+}
+
+// Create an IAM user for external scanning.
+resource "aws_iam_user" "scanner" {
+  name = "perimeterator-scanner"
+}
+
+// Create the IAM access key for the scanner user.
+resource "aws_iam_access_key" "scanner" {
+  user = "${aws_iam_user.scanner.name}"
+}
+
+// Create a policy for the scanner user to access required queues. This 
+// allows the scanners to receive messages from the Enumerator, and allows
+// them to send messages to the results queue.
+resource "aws_iam_user_policy" "scanner" {
+  name   = "perimeterator-scanner"
+  user   = "${aws_iam_user.scanner.name}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sqs:DeleteMessage",
+        "sqs:GetQueueUrl",
+        "sqs:ReceiveMessage"
+      ],
+      "Resource": [
+        "${aws_sqs_queue.enumerator.arn}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage"
+      ],
+      "Resource": "${aws_sqs_queue.scanner.arn}"
+    }
+  ]
 }
 EOF
 }
@@ -96,7 +152,7 @@ resource "aws_iam_policy" "enqueue" {
       "Action": [
         "sqs:SendMessage"
       ],
-      "Resource": "${aws_sqs_queue.scan.arn}"
+      "Resource": "${aws_sqs_queue.enumerator.arn}"
     }
   ]
 }
@@ -147,7 +203,7 @@ resource "aws_iam_role_policy_attachment" "enqueue" {
 }
 
 // Deploy the Enumerator Lambda function.
-resource "aws_lambda_function" "perimiterator_enumerator" {
+resource "aws_lambda_function" "enumerator" {
   role             = "${aws_iam_role.enumerator.arn}"
   runtime          = "python3.7"
   timeout          = "${var.lambda_enumerator_timeout}"
@@ -162,8 +218,35 @@ resource "aws_lambda_function" "perimiterator_enumerator" {
   environment {
     variables = {
       ENUMERATOR_REGIONS    = "${join(",", var.enumerator_regions)}"
-      ENUMERATOR_SQS_QUEUE  = "${aws_sqs_queue.scan.arn}"
+      ENUMERATOR_SQS_QUEUE  = "${aws_sqs_queue.enumerator.arn}"
       ENUMERATOR_SQS_REGION = "${var.deployment_region}"
     }
   }
+}
+
+// Create the CloudWatch rule to invoke this function every N hours.
+resource "aws_cloudwatch_event_rule" "invoker" {
+  name                = "perimeterator-invoker"
+  description         = "Invokes Perimeterator Enumerator on the configured schedule"
+  schedule_expression = "${var.enumerator_schedule}"
+}
+
+resource "aws_cloudwatch_event_target" "invoker" {
+  target_id = "perimeterator-invoker"
+  rule      = "${aws_cloudwatch_event_rule.invoker.name}"
+  arn       = "${aws_lambda_function.enumerator.arn}"
+}
+
+// Allow CloudWatch to invoke the function.
+resource "aws_lambda_permission" "invoker" {
+  action        = "lambda:InvokeFunction"
+  principal     = "events.amazonaws.com"
+  statement_id  = "AllowExecutionFromCloudWatch"
+  function_name = "${aws_lambda_function.enumerator.function_name}"
+}
+
+// Finally, immediately invoke the function to trigger an enumerate operation.
+data "aws_lambda_invocation" "enumerate" {
+  function_name = "${aws_lambda_function.enumerator.function_name}"
+  input         = ""
 }

@@ -16,7 +16,10 @@ setup(
     package_dir={
         'perimeterator': 'src/perimeterator',
     },
-    scripts=[],
+    scripts=[
+        'enumerator.py',
+        'scanner.py',
+    ],
     setup_requires=[
         'pytest-runner',
     ],

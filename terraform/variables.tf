@@ -3,6 +3,11 @@ variable deployment_region {
     default = "us-west-2"
 }
 
+// The schedule on which to trigger the Enumerator.
+variable enumerator_schedule {
+    default = "rate(24 hours)"
+}
+
 // A list of regions the Perimeterator Enumerator will scan.
 variable enumerator_regions {
     type    = "list"
