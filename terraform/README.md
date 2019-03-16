@@ -1,4 +1,4 @@
-## Perimeterator - Terraform
+# Perimeterator - Terraform
 
 This directory contains a set of Terraform configs which will deploy
 Perimeterator to AWS, and trigger the first "Enumeration" run. It will also
@@ -19,7 +19,7 @@ Finally, **the author accepts no responsibility for errors and omissions in
 these Terraform configs which may yield unexpected behaviour and / or
 security misconfiguration.** 
 
-### Overview
+## Overview
 
 This directory contains Terraform configs for deploying Perimeterator. A
 non-exhaustive list of created resources is as follows:
@@ -34,7 +34,7 @@ non-exhaustive list of created resources is as follows:
 * Creation of IAM resources to allow "external" scanners functions to operate.
 * Creation of a CloudWatch Log Group for logging the output of Enumerator runs.
 
-### Deployment
+## Deployment
 
 To deploy simply follow the following steps:
 
@@ -51,13 +51,13 @@ Please be aware that the Terraform configs will automatically invoke the
 function after execution. This has been done to trigger an immediate run, as
 the default execution interval is 24-hours.
 
-### Logs
+## Logs
 
 When deployed, a new log group called `perimeterator-enumerator` will be
 created in CloudWatch. Logs of Enumerator runs can be found in this log
 group, easily accessible from CloudWatch Logs in the AWS console.
 
-### Customisation
+## Customisation
 
 In order to customise the deployment - such as changing the frequency of the
 Enumerator run, or region(s) on which it will enumerate resourrces - please

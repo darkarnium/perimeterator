@@ -1,9 +1,5 @@
 ![Perimeterator](./docs/images/Perimeterator.png?raw=true)
 
-'Continuous' AWS perimeter monitoring: Periodically scan internet facing AWS
-resources to detect misconfigured services. 
-
-### Overview
 
 Perimeterator is a small project intended to allow for continuous auditing
 of internet facing AWS services. It can be quickly deployed into AWS and will
@@ -26,7 +22,7 @@ Currently, the following AWS resource types are supported:
 All communication between Perimeterator components occurs asynchronously
 through the use of AWS SQS queues.
 
-### Deployment
+## Deployment
 
 Perimeterator requires a few components in order to function. However, in
 order to make getting started as easy as possible, some Terraform configs
@@ -34,12 +30,12 @@ have been provided inside of the `terraform/` directory.
 
 To get started, please see the `terraform/README.md` file.
 
-### Components
+## Components
 
 Perimeterator has a number of components, due to its distributed nature. A
 brief overview of each of these components has been provided below.
 
-#### Enumerator (`enumerator.py`)
+### Enumerator (`enumerator.py`)
 
 This component is responsible for enumerating internet facing IP addresses
 which will be passed to downstream monitoring workers for scanning. This
@@ -60,7 +56,7 @@ variables is as follows:
   * The URL of the SQS scan queue.
   * This is created automatically if the provided Terraform configs are used.
 
-#### Scanner (`scanner.py`)
+### Scanner (`scanner.py`)
 
 This component is responsible for performing scanning of the IPs enumerated
 by the Enumerator. This component should be run from an "untrusted" network
