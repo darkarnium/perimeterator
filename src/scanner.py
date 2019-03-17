@@ -50,11 +50,9 @@ def main():
         output_queue_region,
     )
 
-    # Setup clients for I/O.
-    logger.info("Setting up input and output queue handlers (SQS)")
-    _in = boto3.client("sqs", region_name=input_queue_region)
-    _out = boto3.client("sqs", region_name=output_queue_region)
-
+    # TODO: SQS clients are reinitialised every loop to mitigate issues
+    #       observed when using dynamically generated short-term tokens
+    #       which expire during long runs. Fix this.
     logger.info("Starting message polling loop")
     while True:
         # Only process ONE message at a time, as parallelising the scan
@@ -62,6 +60,7 @@ def main():
         # the visibility timeout to the SCAN_TIMEOUT plus 30 seconds to
         # prevent a message from being 'requeued' / unhidden before a scan
         # has had time to complete - or timeout.
+        _in = boto3.client("sqs", region_name=input_queue_region)
         queue = _in.receive_message(
             QueueUrl=input_queue,
             WaitTimeSeconds=20,
@@ -133,6 +132,7 @@ def main():
 
             # Submit the results.
             # TODO: Dry move this into dispatcher and genericise.
+            _out = boto3.client("sqs", region_name=output_queue_region)
             response = _out.send_message(
                 QueueUrl=output_queue,
                 MessageAttributes=messages[i]['MessageAttributes'],

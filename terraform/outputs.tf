@@ -1,27 +1,27 @@
 // Render the Enumerate SQS queue ARN and region to the user when Terraform
 // has complete.
-output "enumerator_sqs_queue" {
+output "ENUMERATOR_SQS_QUEUE" {
     value = "${aws_sqs_queue.enumerator.arn}"
 }
-output "enumerator_sqs_region" {
+output "ENUMERATOR_SQS_REGION" {
     value = "${var.deployment_region}"
 }
 
 // Render the Scanner SQS queue ARN and region to the user when Terraform
 // has complete.
-output "scanner_sqs_queue" {
+output "SCANNER_SQS_QUEUE" {
     value = "${aws_sqs_queue.scanner.arn}"
 }
-output "scanner_sqs_region" {
+output "SCANNER_SQS_REGION" {
     value = "${var.deployment_region}"
 }
 
 // Render the AWS Access Key Id to the user when Terraform has complete.
-output "scanner_aws_access_key_id" {
+output "AWS_ACCESS_KEY_ID" {
     value = "${aws_iam_access_key.scanner.id}"
 }
 
 // Render the AWS Secret Access Key to the user when Terraform has complete.
-output "scanner_aws_secret_access_key" {
+output "AWS_SECRET_ACCESS_KEY" {
     value = "${aws_iam_access_key.scanner.secret}"
 }
