@@ -11,20 +11,20 @@ provider "aws" {
 // by default so there is no need to include setup.py and co.
 data "archive_file" "deployment" {
   type        = "zip"
-  output_path = "${path.module}/perimiterator.zip"
+  output_path = "${path.module}/perimeterator.zip"
   source_dir  = "${path.module}/../src/"
 }
 
-// Create a Perimiterator dead letter queue.
+// Create a perimeterator dead letter queue.
 resource "aws_sqs_queue" "deadletter" {
-  name                      = "perimiterator-deadletter"
+  name                      = "perimeterator-deadletter"
   message_retention_seconds = 86400
   max_message_size          = 1024
 }
 
-// Create a Perimiterator enumerator queue.
+// Create a perimeterator enumerator queue.
 resource "aws_sqs_queue" "enumerator" {
-  name                      = "perimiterator-enumerator"
+  name                      = "perimeterator-enumerator"
   message_retention_seconds = 3600
   max_message_size          = 1024
   redrive_policy            = <<EOF
@@ -35,9 +35,9 @@ resource "aws_sqs_queue" "enumerator" {
 EOF
 }
 
-// Create a Perimiterator scanner queue.
+// Create a perimeterator scanner queue.
 resource "aws_sqs_queue" "scanner" {
-  name                      = "perimiterator-scanner"
+  name                      = "perimeterator-scanner"
   message_retention_seconds = 3600
   max_message_size          = 102400
   redrive_policy            = <<EOF
@@ -93,7 +93,7 @@ EOF
 
 // Create a role for the Lambda function(s) to use.
 resource "aws_iam_role" "enumerator" {
-  name = "perimiterator-enumerator"
+  name = "perimeterator-enumerator"
   path = "/"
   assume_role_policy = <<EOF
 {
@@ -113,14 +113,14 @@ EOF
 
 // Create a CloudWatch log group for Lambda logs.
 resource "aws_cloudwatch_log_group" "enumerator" {
-  name              = "/aws/lambda/perimiterator-enumerator"
+  name              = "/aws/lambda/perimeterator-enumerator"
   retention_in_days = 14
 }
 
 // Create a policy to allow the Lambda function to log output to CloudWatch.
 resource "aws_iam_policy" "log" {
-  name        = "perimiterator-enumerator-log"
-  description = "IAM policy for Perimiterator Enumerator (Logging)"
+  name        = "perimeterator-enumerator-log"
+  description = "IAM policy for perimeterator Enumerator (Logging)"
   policy      = <<EOF
 {
   "Version": "2012-10-17",
@@ -141,8 +141,8 @@ EOF
 // Create a policy to allow the Lambda function to enqueue messages onto the
 // scan queue.
 resource "aws_iam_policy" "enqueue" {
-  name        = "perimiterator-enumerator-enqueue"
-  description = "IAM policy for Perimiterator Enumerator (Enqueue)"
+  name        = "perimeterator-enumerator-enqueue"
+  description = "IAM policy for perimeterator Enumerator (Enqueue)"
   policy      = <<EOF
 {
   "Version": "2012-10-17",
@@ -162,8 +162,8 @@ EOF
 // Create a policy to allow the Lambda function to describe various AWS 
 // resources.
 resource "aws_iam_policy" "describe" {
-  name        = "perimiterator-enumerator-describe"
-  description = "IAM policy for Perimiterator Enumerator (Describe)"
+  name        = "perimeterator-enumerator-describe"
+  description = "IAM policy for perimeterator Enumerator (Describe)"
   policy      = <<EOF
 {
   "Version": "2012-10-17",
@@ -210,8 +210,8 @@ resource "aws_lambda_function" "enumerator" {
   memory_size      = "${var.lambda_enumerator_memory_size}"
 
   handler          = "enumerator.lambda_handler"
-  filename         = "perimiterator.zip"
-  function_name    = "perimiterator-enumerator"
+  filename         = "perimeterator.zip"
+  function_name    = "perimeterator-enumerator"
   source_code_hash = "${data.archive_file.deployment.output_base64sha256}"
 
   // Configuration of function is through environment variables.

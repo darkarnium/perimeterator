@@ -9,11 +9,11 @@ import logging
 import perimeterator
 
 # TODO: Move this to configuration.
-SCAN_TIMEOUT = 300
+SCAN_TIMEOUT = 500
 
 
 def main():
-    ''' Perimiterator scanner main thread. '''
+    ''' perimeterator scanner main thread. '''
     # Strip off any existing handlers that may have already been installed.
     logger = logging.getLogger()
     for handler in logger.handlers:
