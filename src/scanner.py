@@ -136,9 +136,7 @@ def main():
             response = _out.send_message(
                 QueueUrl=output_queue,
                 MessageAttributes=messages[i]['MessageAttributes'],
-                MessageBody=json.dumps({
-                    "result": scan_result,
-                })
+                MessageBody=scan_result,
             )
             logger.info(
                 "Enqueued scan results for resource %s as %s",
