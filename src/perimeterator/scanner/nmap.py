@@ -1,13 +1,46 @@
 ''' Perimeterator - Port scanner (nmap). '''
 
+import json
 import logging
 import tempfile
 import ipaddress
 import subprocess
+import xml.etree.ElementTree as tree
 
 from perimeterator.scanner.exception import InvalidTargetException
 from perimeterator.scanner.exception import UnhandledScanException
 from perimeterator.scanner.exception import TimeoutScanException
+
+
+def _result_from_xml(xml):
+    ''' Converts Nmap XML format output to Perimeterator output format. '''
+    root = tree.fromstring(xml)
+
+    # Extract the scan arguments from the XML, and track as metadata.
+    metadata = {
+        "scanner": root.attrib["scanner"],
+        "arguments": root.attrib["args"],
+    }
+
+    # Extract results from the scan and append to the results document.
+    results = dict()
+    for host in root.iter("host"):
+        # Key results by address.
+        address = host.find("address").attrib["addr"]
+        results[address] = []
+
+        # Append entries for ports not marked as 'closed'.
+        for port in host.iter("port"):
+            state = port.find("state").attrib["state"]
+            if state != "closed":
+                results[address].append({
+                    "port": port.attrib["portid"],
+                    "state": state,
+                    "protocol": port.attrib["protocol"],
+                })
+
+    # Serialise to JSON before returning.
+    return json.dumps({"metadata": metadata, "results": results})
 
 
 def run(targets, timeout=300):
@@ -38,6 +71,7 @@ def run(targets, timeout=300):
                         "-iL", fin.name,    # Input hosts from file.
                         "-oX", fout.name,   # XML Output
                         "--no-stylesheet",  # Don't include XSL stylesheet.
+                        "-n",               # Don't resolve DNS.
                         "-T4",              # Set timing to "Normal".
                         "-Pn",              # Treat hosts as online.
                         "-sT",              # Connect() scan.
@@ -54,7 +88,7 @@ def run(targets, timeout=300):
             except subprocess.TimeoutExpired as err:
                 raise TimeoutScanException(err)
 
-            # Read back the file and return it to our caller.
+            # Read back the file from the start, convert to our required
+            # output format, and return it to our caller.
             fout.seek(0)
-            return fout.read()
-
+            return _result_from_xml(fout.read())
