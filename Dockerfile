@@ -12,8 +12,9 @@ ARG SCANNER_SQS_REGION
 # Install dependencies and setup a home for Perimeterator.
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y nmap && \
-    useradd -m -d /opt/perimeterator perimeterator
+    apt-get install -y nmap libcap2-bin && \
+    useradd -m -d /opt/perimeterator perimeterator && \ 
+    setcap cap_net_raw+ep /usr/bin/nmap
 
 # Install Perimeterator sources into the container.
 COPY --chown=perimeterator ./src/ /opt/perimeterator/

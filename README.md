@@ -22,13 +22,32 @@ Currently, the following AWS resource types are supported:
 All communication between Perimeterator components occurs asynchronously
 through the use of AWS SQS queues.
 
-## Deployment
+## Getting Started / Deployment
 
 Perimeterator requires a few components in order to function. However, in
-order to make getting started as easy as possible, some Terraform configs
-have been provided inside of the `terraform/` directory.
+order to make getting started as easy as possible, a number of Terraform
+configs have been provided inside of the `terraform/` directory.
 
 To get started, please see the `terraform/README.md` file.
+
+## Results?
+
+Result data is currently written to a results queue ready for downstream
+processing.
+
+Fetching and processing this data is still left as an "exercise for the
+reader", however, a reporting mechanism which consumes this data and
+generates a "diff" of results is actively being worked on.
+
+The format of the output data, currently, is as follows - with the ARN of
+the scanned resource available in the SQS message attributes as a String value
+named `Identifier`.
+
+```
+{
+    "result": "<Nmap XML Output>"
+}
+```
 
 ## Components
 
@@ -63,11 +82,16 @@ by the Enumerator. This component should be run from an "untrusted" network
 in order to gain a better insight into exposure from the perspective of the
 "general internet".
 
+Currently, the Scanner only uses `nmap` with the (default `nmap-services`)[https://nmap.org/book/man-port-specification.html]
+provided port range for TCP/UDP services. This is in order to prevent scans
+from taking an extremely long time to complete per host, at the cost of some
+accuracy in the case where uncommon ports are in use. This is likely to be
+made user configurable in the near future.
+
 An example `Dockerfile` for this component can be found in the root of this
-repository (`scanner.Dockerfile`). As this component is likely not running
-inside of AWS, an IAM user and associated Access Key and Secret Key is
-created automatically for you if using the included Terraform configs for
-deployment.
+repository. As this component is likely not running inside of AWS, an IAM user
+and associated Access Key and Secret Key is created automatically for you if
+using the included Terraform configs for deployment.
 
 The following configuration is required to operate correctly. Once again,
 configuration is only possible through environment variables. A brief summary
@@ -91,3 +115,24 @@ of these variables is as follows:
 * `SCANNER_SQS_REGION`
   * The region in which the SQS results queue was created.
   * This is created automatically if the provided Terraform configs are used.
+
+Building and executing this container can be performed by executing the
+following. Of course, the blank fields will need to be populated with the
+appropriate values. However, these match the names of the `outputs` from
+Terraform if Perimeterator is deployed using the provided Terraform configs.
+
+```
+docker build -t perimeterator-scanner:master .
+docker run \
+    -e AWS_ACCESS_KEY_ID= \
+    -e AWS_SECRET_ACCESS_KEY= \
+    -e SCANNER_SQS_QUEUE= \
+    -e SCANNER_SQS_REGION= \
+    -e ENUMERATOR_SQS_QUEUE= \
+    -e ENUMERATOR_SQS_REGION= \
+    perimeterator-scanner:master
+```
+
+### Notify (`notify.py`)
+
+This component is in progress, but is not yet complete.
