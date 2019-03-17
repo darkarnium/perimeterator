@@ -62,6 +62,6 @@ class Enumerator(object):
                     "identifier": ec2_arn(self.region, instance["InstanceId"]),
                     "addresses": addresses,
                 })
-        
+
         self.logger.info("Got IPs for %s resources", len(resources))
         return resources

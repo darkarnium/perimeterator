@@ -112,6 +112,7 @@ def main():
                     resource,
                 )
                 scan_result = perimeterator.scanner.nmap.run(
+                    resource,
                     targets,
                     timeout=SCAN_TIMEOUT,
                 )
@@ -132,7 +133,6 @@ def main():
 
             # Submit the results.
             # TODO: Dry move this into dispatcher and genericise.
-            # TODO: Build a common output format for different scan modules?
             response = _out.send_message(
                 QueueUrl=output_queue,
                 MessageAttributes=messages[i]['MessageAttributes'],
@@ -150,6 +150,7 @@ def main():
                 QueueUrl=input_queue,
                 ReceiptHandle=handle,
             )
+
 
 if __name__ == '__main__':
     main()

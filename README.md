@@ -39,15 +39,36 @@ Fetching and processing this data is still left as an "exercise for the
 reader", however, a reporting mechanism which consumes this data and
 generates a "diff" of results is actively being worked on.
 
-The format of the output data, currently, is as follows - with the ARN of
-the scanned resource available in the SQS message attributes as a String value
-named `Identifier`.
+The format of the output data, currently, is as follows:
 
 ```
 {
-    "result": "<Nmap XML Output>"
+    "metadata": {
+        "scanner": "nmap",
+        "arguments": "...",
+    },
+    "results": {
+        "arn:...": {
+            "192.0.2.0": [
+                {
+                    "port": "22",
+                    "state": "open",
+                    "protocol": "tcp"
+                },
+                {
+                    "port": "80",
+                    "state": "open",
+                    "protocol": "tcp"
+                }
+            ]
+        }
+    }
 }
 ```
+
+Further to this, and if required, the ARN of the resource from which the
+scanned address was found is present in the SQS message attributes as a
+string value named `Identifier`.
 
 ## Components
 

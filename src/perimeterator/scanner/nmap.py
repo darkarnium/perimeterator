@@ -1,7 +1,6 @@
 ''' Perimeterator - Port scanner (nmap). '''
 
 import json
-import logging
 import tempfile
 import ipaddress
 import subprocess
@@ -12,7 +11,7 @@ from perimeterator.scanner.exception import UnhandledScanException
 from perimeterator.scanner.exception import TimeoutScanException
 
 
-def _result_from_xml(xml):
+def _result_from_xml(xml, arn):
     ''' Converts Nmap XML format output to Perimeterator output format. '''
     root = tree.fromstring(xml)
 
@@ -24,6 +23,7 @@ def _result_from_xml(xml):
 
     # Extract results from the scan and append to the results document.
     results = dict()
+
     for host in root.iter("host"):
         # Key results by address.
         address = host.find("address").attrib["addr"]
@@ -40,10 +40,15 @@ def _result_from_xml(xml):
                 })
 
     # Serialise to JSON before returning.
-    return json.dumps({"metadata": metadata, "results": results})
+    return json.dumps({
+        "metadata": metadata,
+        "results": {
+            arn: results
+        }
+    })
 
 
-def run(targets, timeout=300):
+def run(arn, targets, timeout=300):
     ''' Runs a scan against the provided target(s). '''
     # Write IPs to a temporary file - which will be passed to nmap - and
     # validate that all provided target addresses are valid.
@@ -91,4 +96,4 @@ def run(targets, timeout=300):
             # Read back the file from the start, convert to our required
             # output format, and return it to our caller.
             fout.seek(0)
-            return _result_from_xml(fout.read())
+            return _result_from_xml(fout.read(), arn)

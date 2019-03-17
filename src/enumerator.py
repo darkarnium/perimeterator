@@ -34,13 +34,13 @@ def lambda_handler(event, context):
     )
 
     # Get the account id for the current AWS account.
-    account = perimeterator.enumerator.helper.aws_account_id()
+    account = perimeterator.helper.aws_account_id()
     logger.info("Running in AWS account %s", account)
 
     # Get configurable options from environment variables.
     regions = os.getenv("ENUMERATOR_REGIONS", "us-west-2").split(",")
+    sqs_queue = os.getenv("ENUMERATOR_SQS_QUEUE", None)
     sqs_region = os.getenv("ENUMERATOR_SQS_REGION", "us-west-2")
-    sqs_queue  = os.getenv("ENUMERATOR_SQS_QUEUE", None)
     logger.info(
         "Configured regions for resource enumeration are %s",
         ", ".join(regions),

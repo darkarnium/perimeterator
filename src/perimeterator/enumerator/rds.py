@@ -31,7 +31,7 @@ class Enumerator(object):
             self.logger.debug(
                 "Inspecting RDS instance %s", rds["DBInstanceIdentifier"],
             )
-            if rds["PubliclyAccessible"] != True:
+            if not rds["PubliclyAccessible"]:
                 self.logger.debug("RDS instance is not internet facing")
                 continue
 
