@@ -82,7 +82,7 @@ by the Enumerator. This component should be run from an "untrusted" network
 in order to gain a better insight into exposure from the perspective of the
 "general internet".
 
-Currently, the Scanner only uses `nmap` with the (default `nmap-services`)[https://nmap.org/book/man-port-specification.html]
+Currently, the Scanner only uses `nmap` with the [default `nmap-services`](https://nmap.org/book/man-port-specification.html)
 provided port range for TCP/UDP services. This is in order to prevent scans
 from taking an extremely long time to complete per host, at the cost of some
 accuracy in the case where uncommon ports are in use. This is likely to be
