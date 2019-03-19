@@ -255,7 +255,8 @@ resource "aws_lambda_permission" "invoker" {
 }
 
 // Finally, immediately invoke the function to trigger an enumerate operation.
-data "aws_lambda_invocation" "enumerate" {
-  function_name = "${aws_lambda_function.enumerator.function_name}"
-  input         = ""
-}
+// TODO: Disabled due to order of operations issue (?)
+// data "aws_lambda_invocation" "enumerate" {
+//  function_name = "${aws_lambda_function.enumerator.function_name}"
+//  input         = ""
+// }
