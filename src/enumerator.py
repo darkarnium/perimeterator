@@ -40,22 +40,14 @@ def lambda_handler(event, context):
     # Get configurable options from environment variables.
     regions = os.getenv("ENUMERATOR_REGIONS", "us-west-2").split(",")
     sqs_queue = os.getenv("ENUMERATOR_SQS_QUEUE", None)
-    sqs_region = os.getenv("ENUMERATOR_SQS_REGION", "us-west-2")
+    logger.info("Configured results SQS queue is %s", sqs_queue,)
     logger.info(
         "Configured regions for resource enumeration are %s",
         ", ".join(regions),
     )
-    logger.info(
-        "Configured results SQS queue is %s in %s",
-        sqs_queue,
-        sqs_region,
-    )
 
     # Setup the SQS dispatcher for submission of addresses to scanners.
-    queue = perimeterator.dispatcher.sqs.Dispatcher(
-        region=sqs_region,
-        queue=sqs_queue,
-    )
+    queue = perimeterator.dispatcher.sqs.Dispatcher(queue=sqs_queue)
 
     # Process regions one at a time, enumerating addresses for all configured
     # resources in the given region. Currently, it's not possible to only
@@ -84,7 +76,7 @@ def lambda_handler(event, context):
                 module,
                 region,
             )
-            queue.dispatch(region, account, hndl.get())
+            queue.dispatch(account, hndl.get())
 
 
 if __name__ == '__main__':

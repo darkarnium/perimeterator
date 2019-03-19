@@ -3,17 +3,11 @@
 output "ENUMERATOR_SQS_QUEUE" {
     value = "${aws_sqs_queue.enumerator.arn}"
 }
-output "ENUMERATOR_SQS_REGION" {
-    value = "${var.deployment_region}"
-}
 
 // Render the Scanner SQS queue ARN and region to the user when Terraform
 // has complete.
 output "SCANNER_SQS_QUEUE" {
     value = "${aws_sqs_queue.scanner.arn}"
-}
-output "SCANNER_SQS_REGION" {
-    value = "${var.deployment_region}"
 }
 
 // Render the AWS Access Key Id to the user when Terraform has complete.

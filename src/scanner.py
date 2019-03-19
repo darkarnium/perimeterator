@@ -30,41 +30,29 @@ def main():
     logger.info("Running against AWS account %s", account)
 
     # Get configurable options from environment variables.
-    input_queue = perimeterator.helper.sqs_arn_to_url(
+    input_queue = perimeterator.helper.aws_sqs_queue_url(
         os.getenv("ENUMERATOR_SQS_QUEUE", None)
     )
-    input_queue_region = os.getenv("ENUMERATOR_SQS_REGION", "us-west-2")
-    logger.info(
-        "Configured input queue is %s in %s",
-        input_queue,
-        input_queue_region,
-    )
-
-    output_queue = perimeterator.helper.sqs_arn_to_url(
+    output_queue = perimeterator.helper.aws_sqs_queue_url(
         os.getenv("SCANNER_SQS_QUEUE", None)
     )
-    output_queue_region = os.getenv("SCANNER_SQS_REGION", "us-west-2")
-    logger.info(
-        "Configured output queue is %s in %s",
-        output_queue,
-        output_queue_region,
-    )
+    logger.info("Configured input queue is %s", input_queue)
+    logger.info("Configured output queue is %s", output_queue)
 
-    # TODO: SQS clients are reinitialised every loop to mitigate issues
-    #       observed when using dynamically generated short-term tokens
-    #       which expire during long runs. Fix this.
+    # Setup I/O queues and start processing.
+    sqs = boto3.client("sqs")
+
     logger.info("Starting message polling loop")
     while True:
         # Only process ONE message at a time, as parallelising the scan
         # operations is likely in larger environments. Further to this, set
-        # the visibility timeout to the SCAN_TIMEOUT plus 30 seconds to
+        # the visibility timeout to the SCAN_TIMEOUT plus 15 seconds to
         # prevent a message from being 'requeued' / unhidden before a scan
         # has had time to complete - or timeout.
-        _in = boto3.client("sqs", region_name=input_queue_region)
-        queue = _in.receive_message(
+        queue = sqs.receive_message(
             QueueUrl=input_queue,
             WaitTimeSeconds=20,
-            VisibilityTimeout=(SCAN_TIMEOUT + 30),
+            VisibilityTimeout=(SCAN_TIMEOUT + 15),
             MaxNumberOfMessages=1,
             MessageAttributeNames=["All"],
         )
@@ -132,8 +120,7 @@ def main():
 
             # Submit the results.
             # TODO: Dry move this into dispatcher and genericise.
-            _out = boto3.client("sqs", region_name=output_queue_region)
-            response = _out.send_message(
+            response = sqs.send_message(
                 QueueUrl=output_queue,
                 MessageAttributes=messages[i]['MessageAttributes'],
                 MessageBody=scan_result,
@@ -146,7 +133,7 @@ def main():
 
             # Delete the processed message.
             logger.info("[%s] Message processed successfully", message_id)
-            _in.delete_message(
+            sqs.delete_message(
                 QueueUrl=input_queue,
                 ReceiptHandle=handle,
             )

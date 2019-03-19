@@ -22,6 +22,8 @@ Currently, the following AWS resource types are supported:
 All communication between Perimeterator components occurs asynchronously
 through the use of AWS SQS queues.
 
+![Architecture](./docs/images/Architecture.png?raw=true)
+
 ## Getting Started / Deployment
 
 Perimeterator requires a few components in order to function. However, in
@@ -29,46 +31,6 @@ order to make getting started as easy as possible, a number of Terraform
 configs have been provided inside of the `terraform/` directory.
 
 To get started, please see the `terraform/README.md` file.
-
-## Results?
-
-Result data is currently written to a results queue ready for downstream
-processing.
-
-Fetching and processing this data is still left as an "exercise for the
-reader", however, a reporting mechanism which consumes this data and
-generates a "diff" of results is actively being worked on.
-
-The format of the output data, currently, is as follows:
-
-```
-{
-    "metadata": {
-        "scanner": "nmap",
-        "arguments": "...",
-    },
-    "results": {
-        "arn:...": {
-            "192.0.2.0": [
-                {
-                    "port": "22",
-                    "state": "open",
-                    "protocol": "tcp"
-                },
-                {
-                    "port": "80",
-                    "state": "open",
-                    "protocol": "tcp"
-                }
-            ]
-        }
-    }
-}
-```
-
-Further to this, and if required, the ARN of the resource from which the
-scanned address was found is present in the SQS message attributes as a
-string value named `Identifier`.
 
 ## Components
 
@@ -88,9 +50,6 @@ variables is as follows:
 
 * `ENUMERATOR_REGIONS`
   * A comma-delimited list of AWS regions to enumerate resources from.
-  * This is set automatically if the provided Terraform configs are used.
-* `ENUMERATOR_SQS_REGION`
-  * The region in which the SQS scan queue was created.
   * This is set automatically if the provided Terraform configs are used.
 * `ENUMERATOR_SQS_QUEUE`
   * The URL of the SQS scan queue.
@@ -118,6 +77,9 @@ The following configuration is required to operate correctly. Once again,
 configuration is only possible through environment variables. A brief summary
 of these variables is as follows:
 
+* `AWS_DEFAULT_REGION`
+  * The default AWS region to interact with.
+  * This is set by default to `us-west-2`.
 * `AWS_ACCESS_KEY_ID`
   * The AWS access key associated with a user able to interact with SQS.
   * This is created automatically if the provided Terraform configs are used.
@@ -127,14 +89,8 @@ of these variables is as follows:
 * `ENUMERATOR_SQS_QUEUE`
   * The URL of the SQS scan queue (input).
   * This is created automatically if the provided Terraform configs are used.
-* `ENUMERATOR_SQS_REGION`
-  * The region in which the SQS scan queue was created.
-  * This is created automatically if the provided Terraform configs are used.
 * `SCANNER_SQS_QUEUE`
   * The URL of the SQS results queue (output).
-  * This is created automatically if the provided Terraform configs are used.
-* `SCANNER_SQS_REGION`
-  * The region in which the SQS results queue was created.
   * This is created automatically if the provided Terraform configs are used.
 
 Building and executing this container can be performed by executing the
@@ -148,12 +104,48 @@ docker run \
     -e AWS_ACCESS_KEY_ID= \
     -e AWS_SECRET_ACCESS_KEY= \
     -e SCANNER_SQS_QUEUE= \
-    -e SCANNER_SQS_REGION= \
     -e ENUMERATOR_SQS_QUEUE= \
-    -e ENUMERATOR_SQS_REGION= \
     perimeterator-scanner:master
 ```
 
 ### Notify (`notify.py`)
 
 This component is in progress, but is not yet complete.
+
+## Results
+
+Result data from scans is currently written to an SQS queue ready for
+downstream processing. Fetching and processing this data is still left as an
+"exercise for the reader", however, a reporting mechanism which consumes this
+data and generates a "diff" of results is actively being worked on.
+
+The format of the output data, currently, is as follows:
+
+```
+{
+    "metadata": {
+        "scanner": "nmap",
+        "arguments": "-Pn -sT -sU -T4 -n",
+    },
+    "results": {
+        "arn:aws:ec2:12345678:instance/i-coffee": {
+            "192.0.2.0": [
+                {
+                    "port": "22",
+                    "state": "open",
+                    "protocol": "tcp"
+                },
+                {
+                    "port": "80",
+                    "state": "open",
+                    "protocol": "tcp"
+                }
+            ]
+        }
+    }
+}
+```
+
+Further to this, and if required, the ARN of the resource from which the
+scanned address was found is present in the SQS message attributes as a
+string value named `Identifier`.

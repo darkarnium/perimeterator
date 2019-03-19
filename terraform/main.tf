@@ -82,6 +82,7 @@ resource "aws_iam_user_policy" "scanner" {
     {
       "Effect": "Allow",
       "Action": [
+        "sqs:GetQueueUrl",
         "sqs:SendMessage"
       ],
       "Resource": "${aws_sqs_queue.scanner.arn}"
@@ -150,9 +151,17 @@ resource "aws_iam_policy" "enqueue" {
     {
       "Effect": "Allow",
       "Action": [
-        "sqs:SendMessage"
+        "sqs:SendMessage",
+        "sqs:GetQueueUrl"
       ],
       "Resource": "${aws_sqs_queue.enumerator.arn}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sqs:GetQueueUrl"
+      ],
+      "Resource": "${aws_sqs_queue.scanner.arn}"
     }
   ]
 }

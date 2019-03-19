@@ -3,7 +3,7 @@
 import logging
 import boto3
 
-from perimeterator.helper import ec2_arn
+from perimeterator.helper import aws_ec2_arn
 
 
 class Enumerator(object):
@@ -59,7 +59,10 @@ class Enumerator(object):
                 # this isn't provided as part of the describe output.
                 resources.append({
                     "service": self.SERVICE,
-                    "identifier": ec2_arn(self.region, instance["InstanceId"]),
+                    "identifier": aws_ec2_arn(
+                        self.region,
+                        instance["InstanceId"]
+                    ),
                     "addresses": addresses,
                 })
 

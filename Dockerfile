@@ -9,6 +9,9 @@ ARG ENUMERATOR_SQS_REGION
 ARG SCANNER_SQS_QUEUE
 ARG SCANNER_SQS_REGION
 
+# Set a default region.
+ENV AWS_DEFAULT_REGION 'us-west-2'
+
 # Install dependencies and setup a home for Perimeterator.
 RUN apt-get update && \
     apt-get upgrade -y && \

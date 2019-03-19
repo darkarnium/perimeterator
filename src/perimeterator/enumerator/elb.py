@@ -3,7 +3,7 @@
 import logging
 import boto3
 
-from perimeterator.helper import elb_arn
+from perimeterator.helper import aws_elb_arn
 from perimeterator.helper import dns_lookup
 
 
@@ -39,7 +39,10 @@ class Enumerator(object):
             # output from a describe operation (?!)
             resources.append({
                 "service": self.SERVICE,
-                "identifier": elb_arn(self.region, elb["LoadBalancerName"]),
+                "identifier": aws_elb_arn(
+                    self.region,
+                    elb["LoadBalancerName"]
+                ),
                 "addresses": dns_lookup(elb["DNSName"]),
             })
 

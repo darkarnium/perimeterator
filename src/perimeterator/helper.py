@@ -4,7 +4,7 @@ import boto3
 import socket
 
 
-def elb_arn(region, name):
+def aws_elb_arn(region, name):
     ''' Constructs an ARN for an ELB in the given region. '''
     return 'arn:aws:elasticloadbalancing:{0}:{1}:loadbalancer/{2}'.format(
         region,
@@ -13,23 +13,13 @@ def elb_arn(region, name):
     )
 
 
-def ec2_arn(region, identifier, resource='instance'):
+def aws_ec2_arn(region, identifier, resource='instance'):
     ''' Constructs an ARN for an EC2 resource in the given region. '''
     return 'arn:aws:ec2:{0}:{1}:{2}/{3}'.format(
         region,
         aws_account_id(),
         resource,
         identifier,
-    )
-
-
-def sqs_arn_to_url(arn):
-    ''' Convert an SQS ARN to SQS queue URL. '''
-    arn_parts = arn.split(':')
-    return 'https://sqs.{0}.amazonaws.com/{1}/{2}'.format(
-        arn_parts[3],
-        arn_parts[4],
-        arn_parts[5],
     )
 
 
@@ -47,6 +37,16 @@ def dns_lookup(fqdn):
 
     # Convert to a set and back again to deduplicate.
     return list(set(addresses))
+
+
+def aws_sqs_queue_url(arn):
+    ''' Convert an SQS ARN to SQS queue URL. '''
+    client = boto3.client('sqs')
+    queue = client.get_queue_url(
+        QueueName=arn.split(':')[-1],
+        QueueOwnerAWSAccountId=arn.split(':')[-2],
+    )
+    return queue['QueueUrl']
 
 
 def aws_account_id():
