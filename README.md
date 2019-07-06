@@ -24,6 +24,10 @@ through the use of AWS SQS queues.
 
 ![Architecture](./docs/images/Architecture.png?raw=true)
 
+## Demo
+
+[![asciicast](https://asciinema.org/a/234948.svg)](https://asciinema.org/a/234948)
+
 ## Getting Started / Deployment
 
 Perimeterator requires a few components in order to function. However, in
