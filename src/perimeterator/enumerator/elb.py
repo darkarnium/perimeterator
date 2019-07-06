@@ -21,30 +21,51 @@ class Enumerator(object):
         ''' Attempt to get all Public IPs from ELBs. '''
         resources = []
 
-        # TODO: NextMarker
-        candidates = self.client.describe_load_balancers()
+        # Iterate over results until AWS no longer returns a 'NextMarker' in
+        # order to ensure all results are retrieved.
+        marker = ''
+        while marker is not None:
+            # Unfortunately, Marker=None or Marker='' is invalid for this API
+            # call, so it looks like we can't just set this to a None value,
+            # or use a ternary here.
+            if marker:
+                candidates = self.client.describe_load_balancers(
+                    Marker=marker
+                )
+            else:
+                candidates = self.client.describe_load_balancers()
 
-        # For some odd reason the AWS API doesn't appear to allow a filter
-        # on describe operations for ELBs, so we'll have to filter manually.
-        for elb in candidates["LoadBalancerDescriptions"]:
-            self.logger.debug(
-                "Inspecting ELB %s", elb["LoadBalancerName"],
-            )
-            if elb["Scheme"] != "internet-facing":
-                self.logger.debug("ELB is not internet facing")
-                continue
+            # Check if we need to continue paging.
+            if "NextMarker" in candidates:
+                self.logger.debug(
+                    "'NextMarker' found, additional page of results to fetch"
+                )
+                marker = candidates["NextMarker"]
+            else:
+                marker = None
 
-            # Lookup the DNS name for this ELB to get the current IPs. We
-            # also need to construct the ARN, as it's not provided in the
-            # output from a describe operation (?!)
-            resources.append({
-                "service": self.SERVICE,
-                "identifier": aws_elb_arn(
-                    self.region,
-                    elb["LoadBalancerName"]
-                ),
-                "addresses": dns_lookup(elb["DNSName"]),
-            })
+            # For some odd reason the AWS API doesn't appear to allow a
+            # filter on describe operations for ELBs, so we'll have to filter
+            # manually.
+            for elb in candidates["LoadBalancerDescriptions"]:
+                self.logger.debug(
+                    "Inspecting ELB %s", elb["LoadBalancerName"],
+                )
+                if elb["Scheme"] != "internet-facing":
+                    self.logger.debug("ELB is not internet facing")
+                    continue
+
+                # Lookup the DNS name for this ELB to get the current IPs. We
+                # also need to construct the ARN, as it's not provided in the
+                # output from a describe operation (?!)
+                resources.append({
+                    "service": self.SERVICE,
+                    "identifier": aws_elb_arn(
+                        self.region,
+                        elb["LoadBalancerName"]
+                    ),
+                    "addresses": dns_lookup(elb["DNSName"]),
+                })
 
         self.logger.info("Got IPs for %s resources", len(resources))
         return resources
