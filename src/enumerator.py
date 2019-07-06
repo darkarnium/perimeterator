@@ -40,10 +40,10 @@ def lambda_handler(event, context):
     # Get configurable options from environment variables.
     regions = os.getenv("ENUMERATOR_REGIONS", "us-west-2").split(",")
     sqs_queue = os.getenv("ENUMERATOR_SQS_QUEUE", None)
-    logger.info("Configured results SQS queue is %s", sqs_queue,)
+    logger.info("Configured results SQS queue is %s", sqs_queue)
     logger.info(
         "Configured regions for resource enumeration are %s",
-        ", ".join(regions),
+        ", ".join(regions)
     )
 
     # Setup the SQS dispatcher for submission of addresses to scanners.
@@ -60,13 +60,13 @@ def lambda_handler(event, context):
             try:
                 # Ensure a handler exists for this type of resource.
                 hndl = getattr(perimeterator.enumerator, module).Enumerator(
-                    region=region,
+                    region=region
                 )
             except AttributeError as err:
                 logger.error(
                     "Handler for %s resources not found, skipping: %s",
                     module,
-                    err,
+                    err
                 )
                 continue
 
@@ -74,7 +74,7 @@ def lambda_handler(event, context):
             logger.info(
                 "Submitting %s resources in %s for processing",
                 module,
-                region,
+                region
             )
             queue.dispatch(account, hndl.get())
 

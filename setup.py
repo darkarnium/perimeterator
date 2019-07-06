@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='perimeterator',
-    version='0.1.0',  # TODO: Single source this from bagger.version.VERSION
+    version='0.2.0',  # TODO: Single source this.
     description='Continuous AWS Perimeter Monitoring',
     author='Peter Adkins',
     author_email='peter.adkins@kernelpicnic.net',
