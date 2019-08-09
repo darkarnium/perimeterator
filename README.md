@@ -18,6 +18,7 @@ Currently, the following AWS resource types are supported:
 * ELB
 * ELBv2
 * RDS
+* ES
 
 All communication between Perimeterator components occurs asynchronously
 through the use of AWS SQS queues.

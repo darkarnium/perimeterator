@@ -47,9 +47,18 @@ To deploy simply follow the following steps:
 7. Enjoy your ☕️ / 🍺 / 🥃 / 🍚 while you wait for the deployment to finish.
 8. Use the output AWS IAM keys to deploy a scanner.
 
-Please be aware that the Terraform configs will automatically invoke the
-function after execution. This has been done to trigger an immediate run, as
-the default execution interval is 24-hours.
+Please be aware that the deployed `enumerator` Lambda function will only
+execute every 24 hours by default, and it may take some time for the first
+run to be triggered by the CloudWatch Events rule. Logs can be found in the
+CloudWatch console which can be used to monitor the status of `enumerator`
+runs.
+
+Invocation can also be performed manually after - if required - with the
+following AWS CLI command:
+
+```
+aws lambda invoke --function-name perimeterator-enumerator /dev/null
+```
 
 ## Logs
 
@@ -60,6 +69,6 @@ group, easily accessible from CloudWatch Logs in the AWS console.
 ## Customisation
 
 In order to customise the deployment - such as changing the frequency of the
-Enumerator run, or region(s) on which it will enumerate resourrces - please
+Enumerator run, or region(s) on which it will enumerate resources - please
 see the `variables.tf` file, and the comments associated with the respective
 variable you would like to change.
