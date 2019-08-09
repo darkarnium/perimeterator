@@ -17,6 +17,7 @@ MODULES = [
     'ec2',
     'elb',
     'elbv2',
+    'es',
 ]
 
 

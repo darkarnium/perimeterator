@@ -20,7 +20,8 @@ RUN apt-get update && \
     setcap cap_net_raw+ep /usr/bin/nmap
 
 # Install Perimeterator sources into the container.
-COPY --chown=perimeterator ./src/ /opt/perimeterator/
+RUN mkdir -p /opt/perimeterator/src
+COPY --chown=perimeterator ./src /opt/perimeterator/src
 COPY --chown=perimeterator ./setup.* /opt/perimeterator/
 
 # Install perimterator.
@@ -30,4 +31,4 @@ RUN pip3 install . && \
 
 # Kick off the monitor as soon as the container starts (by default).
 USER perimeterator
-ENTRYPOINT [ "python3", "/opt/perimeterator/scanner.py" ]
+ENTRYPOINT [ "python3", "/opt/perimeterator/src/scanner.py" ]

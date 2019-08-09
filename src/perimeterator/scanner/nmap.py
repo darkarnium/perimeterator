@@ -80,7 +80,6 @@ def run(arn, targets, timeout=300):
                         "-T4",              # Set timing to "Normal".
                         "-Pn",              # Treat hosts as online.
                         "-sT",              # Connect() scan.
-                        "-sU",              # UDP scan.
                     ],
                     check=True,
                     shell=False,

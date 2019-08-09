@@ -56,10 +56,9 @@ class Enumerator(object):
                     self.logger.debug("RDS instance is not internet facing")
                     continue
 
-                # Lookup the DNS name for this ELB to get the current IPs.
-                # We're ignoring the configured port for the time being,
-                # although this could present a trivial optimisation for
-                # scanning speed up.
+                # Lookup the DNS name to get the current IPs. We're ignoring
+                # the configured port for the time being, although this could
+                # present a trivial optimisation for scanning speed up.
                 try:
                     resources.append({
                         "service": self.SERVICE,

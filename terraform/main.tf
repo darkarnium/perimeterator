@@ -191,6 +191,16 @@ resource "aws_iam_policy" "describe" {
       "Effect": "Allow",
       "Action": "rds:DescribeDBInstances",
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "es:ListDomainNames",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "es:DescribeElasticsearchDomain",
+      "Resource": "*"
     }
   ]
 }
@@ -253,10 +263,3 @@ resource "aws_lambda_permission" "invoker" {
   statement_id  = "AllowExecutionFromCloudWatch"
   function_name = "${aws_lambda_function.enumerator.function_name}"
 }
-
-// Finally, immediately invoke the function to trigger an enumerate operation.
-// TODO: Disabled due to order of operations issue (?)
-// data "aws_lambda_invocation" "enumerate" {
-//  function_name = "${aws_lambda_function.enumerator.function_name}"
-//  input         = ""
-// }
